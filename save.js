@@ -11,8 +11,9 @@ window.saves = [
       "farest_town": 10,
       "min_speed": 30,
       "max_speed": 60,
-      "sim_speed": 0,
+      "sim_slow": 0,
       "car_ratio": 1,
+      "smart_ratio": 1,
       "min_path_length": 2,
       "benchmark_steps": 10000
     },
@@ -800,19 +801,23 @@ window.saves = [
     ],
     "benchmarks": {
       "no_info": [
-        "0.685",
+        "0.684",
         100
       ],
       "with_info": [
-        "0.721",
+        "0.725",
         105
       ],
       "full_info": [
-        "1.176",
-        171
+        "1.166",
+        170
+      ],
+      "smart_gps": [
+        "1.189",
+        173
       ]
     },
-    "comment": "Simulation de base. Dans cette simulation, les quelques panneaux d'information dans le mode With Info n'ont eu que très peu d'impact, alors que le fait d'équiper toutes les villes a eu un impact énorme."
+    "comment": "Simulation de base. Dans cette simulation, les quelques panneaux d'information dans le mode With Info n'ont eu que très peu d'impact, alors que le fait d'équiper toutes les villes a eu un impact énorme. Le fait d'équiper toutes les voitures avec des GPS augmente encore un peu la performance."
   },
   {
     "parameters": {
@@ -826,8 +831,9 @@ window.saves = [
       "farest_town": 10,
       "min_speed": 30,
       "max_speed": 60,
-      "sim_speed": 0,
+      "sim_slow": 0,
       "car_ratio": 2,
+      "smart_ratio": 1,
       "min_path_length": 2,
       "benchmark_steps": 10000
     },
@@ -1615,19 +1621,23 @@ window.saves = [
     ],
     "benchmarks": {
       "no_info": [
-        "0.676",
+        "0.692",
         100
       ],
       "with_info": [
-        "0.724",
-        107
+        "0.753",
+        108
       ],
       "full_info": [
-        "1.330",
-        196
+        "1.298",
+        187
+      ],
+      "smart_gps": [
+        "1.542",
+        222
       ]
     },
-    "comment": "Cette simulation est la même que la précédente, mais le nombre de voitures est deux fois plus élevé. On voit directement que le nombre de voyages réussis sans informations ne bouge quasiment pas, alors que dans une simulation Full Info ce nombre fait un bond."
+    "comment": "Cette simulation est la même que la précédente, mais le nombre de voitures est deux fois plus élevé. On voit directement que le nombre de voyages réussis sans informations ne bouge quasiment pas, alors que dans une simulation Full Info ou Smart GPS ce nombre fait un bond."
   },
   {
     "parameters": {
@@ -1641,8 +1651,9 @@ window.saves = [
       "farest_town": 10,
       "min_speed": 30,
       "max_speed": 60,
-      "sim_speed": 0,
+      "sim_slow": 0,
       "car_ratio": 1,
+      "smart_ratio": 1,
       "min_path_length": 2,
       "benchmark_steps": 10000
     },
@@ -2430,19 +2441,23 @@ window.saves = [
     ],
     "benchmarks": {
       "no_info": [
-        "0.866",
+        "0.856",
         118
       ],
       "with_info": [
-        "0.731",
+        "0.722",
         100
       ],
       "full_info": [
         "0.799",
-        109
+        110
+      ],
+      "smart_gps": [
+        "1.135",
+        157
       ]
     },
-    "comment": "Dans cette simulation, nous n'avons touché à aucun paramètre par rapport au deux précédentes, mais rechargé une carte aléatoire. Nous voyons directement que dans cette configuration-ci, les panneaux d'information ont carrément un impact négatif sur l'utilisation des routes par l'ensemble des usagers. Il est donc à noter que le fait de fournir de l'information traffic à l'ensemble des usagers n'est pas nécessairement une bonne idée."
+    "comment": "Dans cette simulation, nous n'avons touché à aucun paramètre par rapport au deux précédentes, mais rechargé une carte aléatoire. Nous voyons directement que dans cette configuration-ci, les panneaux d'information ont carrément un impact négatif sur l'utilisation des routes par l'ensemble des usagers. Il est donc à noter que le fait de fournir de l'information traffic à l'ensemble des usagers n'est pas nécessairement une bonne idée. Comme précedemment, le fait d'avoir des GPS intelligents améliore encore les performances."
   },
   {
     "parameters": {
@@ -2456,8 +2471,9 @@ window.saves = [
       "farest_town": 10,
       "min_speed": 30,
       "max_speed": 60,
-      "sim_speed": 0,
+      "sim_slow": 0,
       "car_ratio": 4,
+      "smart_ratio": 1,
       "min_path_length": 3,
       "benchmark_steps": 10000
     },
@@ -3055,16 +3071,20 @@ window.saves = [
     ],
     "benchmarks": {
       "no_info": [
-        "0.611",
-        120
+        "0.644",
+        123
       ],
       "with_info": [
-        "0.508",
+        "0.522",
         100
       ],
       "full_info": [
-        "0.811",
-        159
+        "0.822",
+        157
+      ],
+      "smart_gps": [
+        "1.071",
+        205
       ]
     },
     "comment": "Cet exemple-ci souligne encore une fois que des panneaux d'information mal placés impliqueront des bouchons au niveau d'une autre ville. En effet, dans cet exemple, nous nous retrouvons très rapidement en mode With Info avec une seule route bouchée, et l'ensemble des routes restantes quasi-inoccupées."
@@ -3076,848 +3096,619 @@ window.saves = [
       "nb_towns": 14,
       "min_distance": 100,
       "info_chance": 0.5,
-      "min_routes": 4,
-      "max_routes": 9,
+      "min_routes": 2,
+      "max_routes": 6,
       "farest_town": 10,
       "min_speed": 30,
       "max_speed": 60,
-      "sim_speed": 0,
-      "car_ratio": 0.5,
+      "sim_slow": 0,
+      "car_ratio": 2,
+      "smart_ratio": 1,
       "min_path_length": 2,
-      "benchmark_steps": "30000"
+      "benchmark_steps": 10000
     },
     "towns": [
       {
-        "x": 1091,
-        "y": 461,
-        "info": true,
-        "garage": 2,
+        "x": 961,
+        "y": 395,
+        "info": false,
+        "garage": 4,
         "routes": [
           0,
           1,
           2,
           3,
-          4,
-          5
+          4
         ],
         "accessible": [
-          13,
-          12,
           6,
-          8,
-          4,
-          1,
-          11
-        ]
-      },
-      {
-        "x": 452,
-        "y": 28,
-        "info": true,
-        "garage": 6,
-        "routes": [
-          6,
-          7,
-          8,
-          9,
+          2,
           10,
-          11,
-          12,
-          13
-        ],
-        "accessible": [
-          3,
-          7,
           5,
-          0,
-          2
-        ]
-      },
-      {
-        "x": 1247,
-        "y": 460,
-        "info": true,
-        "garage": 5,
-        "routes": [
-          14,
-          15,
-          16,
-          17,
-          18
-        ],
-        "accessible": [
-          9,
           3,
-          12,
-          6,
           8,
-          4,
-          1,
-          11
+          9,
+          7
         ]
       },
       {
-        "x": 590,
-        "y": 387,
-        "info": true,
+        "x": 632,
+        "y": 418,
+        "info": false,
         "garage": 2,
         "routes": [
-          19,
-          20,
-          21,
-          22,
-          23,
-          24
+          5,
+          6
         ],
         "accessible": [
           6,
-          1,
-          11,
-          13,
-          5,
           0,
-          2
+          13,
+          2,
+          3,
+          4,
+          12,
+          5,
+          8,
+          9,
+          7
         ]
       },
       {
-        "x": 238,
-        "y": 369,
-        "info": true,
+        "x": 561,
+        "y": 56,
+        "info": false,
+        "garage": 3,
+        "routes": [
+          7,
+          8,
+          9,
+          10
+        ],
+        "accessible": [
+          0,
+          13,
+          8,
+          3,
+          1,
+          4,
+          12,
+          9,
+          7
+        ]
+      },
+      {
+        "x": 311,
+        "y": 402,
+        "info": false,
+        "garage": 4,
+        "routes": [
+          11,
+          12
+        ],
+        "accessible": [
+          1,
+          6,
+          8,
+          11,
+          2,
+          9,
+          7,
+          0,
+          13,
+          4,
+          12
+        ]
+      },
+      {
+        "x": 1146,
+        "y": 368,
+        "info": false,
         "garage": 5,
         "routes": [
-          25,
+          13,
+          14
+        ],
+        "accessible": [
+          11,
+          1,
+          12,
+          6,
+          2,
+          10,
+          5,
+          3,
+          8,
+          9,
+          7
+        ]
+      },
+      {
+        "x": 379,
+        "y": 155,
+        "info": false,
+        "garage": 3,
+        "routes": [
+          15,
+          16,
+          17
+        ],
+        "accessible": [
+          2,
+          10,
+          9,
+          7,
+          11,
+          1,
+          0,
+          13,
+          4,
+          12
+        ]
+      },
+      {
+        "x": 554,
+        "y": 175,
+        "info": false,
+        "garage": 4,
+        "routes": [
+          18,
+          19
+        ],
+        "accessible": [
+          11,
+          5,
+          1,
+          3,
+          0,
+          13,
+          8,
+          4,
+          12,
+          9,
+          7
+        ]
+      },
+      {
+        "x": 58,
+        "y": 51,
+        "info": false,
+        "garage": 1,
+        "routes": [
+          20,
+          21,
+          22
+        ],
+        "accessible": [
+          3,
+          6,
+          10,
+          2,
+          1,
+          11,
+          0,
+          13,
+          4,
+          12
+        ]
+      },
+      {
+        "x": 232,
+        "y": 78,
+        "info": false,
+        "garage": 5,
+        "routes": [
+          23,
+          24,
+          25
+        ],
+        "accessible": [
+          6,
+          3,
+          2,
+          10,
+          11,
+          1,
+          0,
+          13,
+          4,
+          12
+        ]
+      },
+      {
+        "x": 7,
+        "y": 285,
+        "info": false,
+        "garage": 2,
+        "routes": [
           26,
           27,
           28,
           29
         ],
         "accessible": [
-          11,
           10,
-          13,
-          7,
-          9,
-          5,
+          6,
+          1,
+          2,
+          11,
           0,
-          2
+          13,
+          4,
+          12
         ]
       },
       {
-        "x": 1185,
-        "y": 344,
-        "info": true,
-        "garage": 5,
+        "x": 514,
+        "y": 375,
+        "info": false,
+        "garage": 4,
         "routes": [
           30,
-          31,
-          32,
-          33
+          31
         ],
         "accessible": [
-          2,
-          3,
-          12,
-          13,
-          6,
-          8,
-          4,
-          1,
-          11
-        ]
-      },
-      {
-        "x": 470,
-        "y": 136,
-        "info": true,
-        "garage": 2,
-        "routes": [
-          34,
-          35,
-          36,
-          37,
-          38,
-          39,
-          40
-        ],
-        "accessible": [
-          9,
           11,
-          7,
-          5,
-          0,
-          2
-        ]
-      },
-      {
-        "x": 830,
-        "y": 382,
-        "info": true,
-        "garage": 1,
-        "routes": [
-          41,
-          42,
-          43,
-          44,
-          45
-        ],
-        "accessible": [
           5,
           6,
           0,
+          13,
+          2,
           8,
           4,
-          1,
-          2,
-          11
+          12,
+          9,
+          7
         ]
       },
       {
-        "x": 433,
-        "y": 377,
-        "info": true,
+        "x": 792,
+        "y": 221,
+        "info": false,
         "garage": 3,
         "routes": [
-          46,
-          47,
-          48,
-          49,
-          50,
-          51
+          32,
+          33,
+          34,
+          35
         ],
         "accessible": [
           10,
-          7,
+          4,
+          12,
+          1,
+          5,
+          3,
+          8,
           9,
-          13,
-          5,
-          0,
-          2
+          7
         ]
       },
       {
-        "x": 848,
-        "y": 208,
-        "info": true,
-        "garage": 3,
-        "routes": [
-          52,
-          53,
-          54,
-          55,
-          56,
-          57,
-          58,
-          59
-        ],
-        "accessible": [
-          8,
-          1,
-          4,
-          2,
-          11
-        ]
-      },
-      {
-        "x": 747,
-        "y": 192,
-        "info": true,
-        "garage": 2,
-        "routes": [
-          60,
-          61,
-          62,
-          63
-        ],
-        "accessible": [
-          7,
-          5,
-          6,
-          0,
-          8,
-          1,
-          4,
-          2,
-          11
-        ]
-      },
-      {
-        "x": 139,
-        "y": 158,
-        "info": true,
+        "x": 1282,
+        "y": 329,
+        "info": false,
         "garage": 1,
         "routes": [
-          64,
-          65,
-          66,
-          67,
-          68,
-          69,
-          70
+          36,
+          37,
+          38
         ],
         "accessible": [
-          13,
-          9,
-          7,
-          5,
-          0,
-          2
-        ]
-      },
-      {
-        "x": 617,
-        "y": 263,
-        "info": true,
-        "garage": 2,
-        "routes": [
-          71,
-          72,
-          73,
-          74,
-          75,
-          76,
-          77
-        ],
-        "accessible": [
-          4,
           11,
-          7,
+          1,
+          6,
+          2,
+          10,
           5,
-          0,
-          2
+          3,
+          8,
+          9,
+          7
         ]
       },
       {
-        "x": 745,
-        "y": 54,
-        "info": true,
+        "x": 1053,
+        "y": 271,
+        "info": false,
         "garage": 2,
         "routes": [
-          78,
-          79,
-          80,
-          81
+          39,
+          40,
+          41,
+          42
         ],
         "accessible": [
-          7,
-          3,
-          5,
-          0,
-          8,
-          1,
-          4,
+          12,
+          6,
           2,
-          11
+          10,
+          5,
+          3,
+          8,
+          9,
+          7
         ]
       }
     ],
     "routes": [
       {
         "source": 0,
-        "dest": 5,
-        "distance": 150,
+        "dest": 4,
+        "distance": 186,
         "using": 0
       },
       {
         "source": 0,
-        "dest": 2,
-        "distance": 156,
+        "dest": 11,
+        "distance": 242,
         "using": 0
       },
       {
         "source": 0,
-        "dest": 9,
-        "distance": 350,
-        "using": 0
-      },
-      {
-        "source": 0,
-        "dest": 7,
-        "distance": 272,
-        "using": 0
-      },
-      {
-        "source": 0,
-        "dest": 3,
-        "distance": 506,
-        "using": 0
-      },
-      {
-        "source": 0,
-        "dest": 10,
-        "distance": 436,
-        "using": 0
-      },
-      {
-        "source": 1,
-        "dest": 12,
-        "distance": 287,
-        "using": 0
-      },
-      {
-        "source": 1,
         "dest": 13,
-        "distance": 294,
+        "distance": 154,
         "using": 0
       },
       {
-        "source": 1,
-        "dest": 6,
-        "distance": 109,
+        "source": 0,
+        "dest": 12,
+        "distance": 327,
+        "using": 0
+      },
+      {
+        "source": 0,
+        "dest": 1,
+        "distance": 329,
         "using": 0
       },
       {
         "source": 1,
         "dest": 11,
-        "distance": 338,
+        "distance": 253,
         "using": 0
       },
       {
         "source": 1,
         "dest": 10,
-        "distance": 337,
-        "using": 0
-      },
-      {
-        "source": 1,
-        "dest": 8,
-        "distance": 349,
-        "using": 0
-      },
-      {
-        "source": 1,
-        "dest": 4,
-        "distance": 402,
-        "using": 0
-      },
-      {
-        "source": 1,
-        "dest": 9,
-        "distance": 434,
+        "distance": 125,
         "using": 0
       },
       {
         "source": 2,
-        "dest": 0,
-        "distance": 156,
+        "dest": 6,
+        "distance": 119,
         "using": 0
       },
       {
         "source": 2,
-        "dest": 7,
-        "distance": 424,
+        "dest": 11,
+        "distance": 283,
         "using": 0
       },
       {
         "source": 2,
         "dest": 5,
-        "distance": 131,
-        "using": 0
-      },
-      {
-        "source": 2,
-        "dest": 10,
-        "distance": 567,
-        "using": 0
-      },
-      {
-        "source": 2,
-        "dest": 13,
-        "distance": 645,
-        "using": 0
-      },
-      {
-        "source": 3,
-        "dest": 8,
-        "distance": 157,
-        "using": 0
-      },
-      {
-        "source": 3,
-        "dest": 12,
-        "distance": 126,
-        "using": 0
-      },
-      {
-        "source": 3,
-        "dest": 10,
-        "distance": 250,
-        "using": 0
-      },
-      {
-        "source": 3,
-        "dest": 7,
-        "distance": 240,
-        "using": 0
-      },
-      {
-        "source": 3,
-        "dest": 9,
-        "distance": 314,
-        "using": 0
-      },
-      {
-        "source": 3,
-        "dest": 4,
-        "distance": 352,
-        "using": 0
-      },
-      {
-        "source": 4,
-        "dest": 8,
-        "distance": 195,
-        "using": 0
-      },
-      {
-        "source": 4,
-        "dest": 6,
-        "distance": 328,
-        "using": 0
-      },
-      {
-        "source": 4,
-        "dest": 3,
-        "distance": 352,
-        "using": 0
-      },
-      {
-        "source": 4,
-        "dest": 12,
-        "distance": 393,
-        "using": 0
-      },
-      {
-        "source": 4,
-        "dest": 1,
-        "distance": 402,
-        "using": 0
-      },
-      {
-        "source": 5,
-        "dest": 0,
-        "distance": 150,
-        "using": 0
-      },
-      {
-        "source": 5,
-        "dest": 7,
-        "distance": 357,
-        "using": 0
-      },
-      {
-        "source": 5,
-        "dest": 9,
-        "distance": 363,
-        "using": 0
-      },
-      {
-        "source": 5,
-        "dest": 10,
-        "distance": 463,
-        "using": 0
-      },
-      {
-        "source": 6,
-        "dest": 12,
-        "distance": 194,
-        "using": 0
-      },
-      {
-        "source": 6,
-        "dest": 8,
-        "distance": 243,
-        "using": 0
-      },
-      {
-        "source": 6,
-        "dest": 1,
-        "distance": 109,
-        "using": 0
-      },
-      {
-        "source": 6,
-        "dest": 3,
-        "distance": 278,
-        "using": 0
-      },
-      {
-        "source": 6,
-        "dest": 10,
-        "distance": 282,
-        "using": 0
-      },
-      {
-        "source": 6,
-        "dest": 13,
-        "distance": 286,
-        "using": 0
-      },
-      {
-        "source": 6,
-        "dest": 4,
-        "distance": 328,
-        "using": 0
-      },
-      {
-        "source": 7,
-        "dest": 9,
-        "distance": 174,
-        "using": 0
-      },
-      {
-        "source": 7,
-        "dest": 3,
-        "distance": 240,
-        "using": 0
-      },
-      {
-        "source": 7,
-        "dest": 12,
-        "distance": 243,
-        "using": 0
-      },
-      {
-        "source": 7,
-        "dest": 10,
         "distance": 207,
         "using": 0
       },
       {
-        "source": 7,
+        "source": 2,
+        "dest": 10,
+        "distance": 322,
+        "using": 0
+      },
+      {
+        "source": 3,
+        "dest": 10,
+        "distance": 204,
+        "using": 0
+      },
+      {
+        "source": 3,
+        "dest": 5,
+        "distance": 256,
+        "using": 0
+      },
+      {
+        "source": 4,
         "dest": 13,
-        "distance": 338,
+        "distance": 134,
         "using": 0
       },
       {
-        "source": 8,
-        "dest": 3,
-        "distance": 157,
+        "source": 4,
+        "dest": 0,
+        "distance": 186,
         "using": 0
       },
       {
-        "source": 8,
-        "dest": 4,
-        "distance": 195,
-        "using": 0
-      },
-      {
-        "source": 8,
-        "dest": 12,
-        "distance": 216,
-        "using": 0
-      },
-      {
-        "source": 8,
+        "source": 5,
         "dest": 6,
-        "distance": 243,
+        "distance": 176,
+        "using": 0
+      },
+      {
+        "source": 5,
+        "dest": 8,
+        "distance": 165,
+        "using": 0
+      },
+      {
+        "source": 5,
+        "dest": 3,
+        "distance": 256,
+        "using": 0
+      },
+      {
+        "source": 6,
+        "dest": 2,
+        "distance": 119,
+        "using": 0
+      },
+      {
+        "source": 6,
+        "dest": 10,
+        "distance": 203,
+        "using": 0
+      },
+      {
+        "source": 7,
+        "dest": 9,
+        "distance": 239,
+        "using": 0
+      },
+      {
+        "source": 7,
+        "dest": 5,
+        "distance": 337,
+        "using": 0
+      },
+      {
+        "source": 7,
+        "dest": 8,
+        "distance": 176,
         "using": 0
       },
       {
         "source": 8,
-        "dest": 1,
-        "distance": 349,
+        "dest": 5,
+        "distance": 165,
         "using": 0
       },
       {
         "source": 8,
-        "dest": 11,
-        "distance": 366,
+        "dest": 9,
+        "distance": 305,
+        "using": 0
+      },
+      {
+        "source": 8,
+        "dest": 7,
+        "distance": 176,
         "using": 0
       },
       {
         "source": 9,
         "dest": 7,
-        "distance": 174,
+        "distance": 239,
         "using": 0
       },
       {
         "source": 9,
-        "dest": 13,
-        "distance": 185,
-        "using": 0
-      },
-      {
-        "source": 9,
-        "dest": 12,
-        "distance": 237,
+        "dest": 8,
+        "distance": 305,
         "using": 0
       },
       {
         "source": 9,
         "dest": 3,
-        "distance": 314,
-        "using": 0
-      },
-      {
-        "source": 9,
-        "dest": 10,
-        "distance": 102,
+        "distance": 325,
         "using": 0
       },
       {
         "source": 9,
         "dest": 5,
-        "distance": 363,
+        "distance": 394,
         "using": 0
       },
       {
-        "source": 9,
+        "source": 10,
+        "dest": 1,
+        "distance": 125,
+        "using": 0
+      },
+      {
+        "source": 10,
+        "dest": 3,
+        "distance": 204,
+        "using": 0
+      },
+      {
+        "source": 11,
         "dest": 6,
-        "distance": 384,
+        "distance": 242,
         "using": 0
       },
       {
-        "source": 9,
+        "source": 11,
         "dest": 0,
-        "distance": 350,
-        "using": 0
-      },
-      {
-        "source": 10,
-        "dest": 9,
-        "distance": 102,
-        "using": 0
-      },
-      {
-        "source": 10,
-        "dest": 13,
-        "distance": 138,
-        "using": 0
-      },
-      {
-        "source": 10,
-        "dest": 12,
-        "distance": 148,
-        "using": 0
-      },
-      {
-        "source": 10,
-        "dest": 3,
-        "distance": 250,
+        "distance": 242,
         "using": 0
       },
       {
         "source": 11,
+        "dest": 13,
+        "distance": 265,
+        "using": 0
+      },
+      {
+        "source": 11,
+        "dest": 2,
+        "distance": 283,
+        "using": 0
+      },
+      {
+        "source": 12,
+        "dest": 13,
+        "distance": 236,
+        "using": 0
+      },
+      {
+        "source": 12,
         "dest": 4,
-        "distance": 233,
+        "distance": 141,
         "using": 0
       },
       {
-        "source": 11,
-        "dest": 6,
-        "distance": 331,
+        "source": 12,
+        "dest": 0,
+        "distance": 327,
         "using": 0
       },
       {
-        "source": 11,
+        "source": 13,
+        "dest": 0,
+        "distance": 154,
+        "using": 0
+      },
+      {
+        "source": 13,
+        "dest": 4,
+        "distance": 134,
+        "using": 0
+      },
+      {
+        "source": 13,
+        "dest": 11,
+        "distance": 265,
+        "using": 0
+      },
+      {
+        "source": 13,
         "dest": 1,
-        "distance": 338,
-        "using": 0
-      },
-      {
-        "source": 11,
-        "dest": 8,
-        "distance": 366,
-        "using": 0
-      },
-      {
-        "source": 11,
-        "dest": 12,
-        "distance": 489,
-        "using": 0
-      },
-      {
-        "source": 11,
-        "dest": 3,
-        "distance": 505,
-        "using": 0
-      },
-      {
-        "source": 11,
-        "dest": 10,
-        "distance": 608,
-        "using": 0
-      },
-      {
-        "source": 12,
-        "dest": 10,
-        "distance": 148,
-        "using": 0
-      },
-      {
-        "source": 12,
-        "dest": 6,
-        "distance": 194,
-        "using": 0
-      },
-      {
-        "source": 12,
-        "dest": 8,
-        "distance": 216,
-        "using": 0
-      },
-      {
-        "source": 12,
-        "dest": 3,
-        "distance": 126,
-        "using": 0
-      },
-      {
-        "source": 12,
-        "dest": 9,
-        "distance": 237,
-        "using": 0
-      },
-      {
-        "source": 12,
-        "dest": 13,
-        "distance": 245,
-        "using": 0
-      },
-      {
-        "source": 12,
-        "dest": 1,
-        "distance": 287,
-        "using": 0
-      },
-      {
-        "source": 13,
-        "dest": 9,
-        "distance": 185,
-        "using": 0
-      },
-      {
-        "source": 13,
-        "dest": 10,
-        "distance": 138,
-        "using": 0
-      },
-      {
-        "source": 13,
-        "dest": 12,
-        "distance": 245,
-        "using": 0
-      },
-      {
-        "source": 13,
-        "dest": 6,
-        "distance": 286,
+        "distance": 445,
         "using": 0
       }
     ],
     "benchmarks": {
       "no_info": [
-        "0.553",
-        100
+        "0.788",
+        109
       ],
       "with_info": [
-        "0.762",
-        137
+        "0.899",
+        124
       ],
       "full_info": [
-        "0.704",
-        127
+        "0.721",
+        100
+      ],
+      "smart_gps": [
+        "0.903",
+        125
       ]
     },
-    "comment": "Cet exemple souligne quant à lui le fait d'avoir des panneaux d'informations dans certaines villes seulement peut être plus benéfique que d'en avoir dans toutes les villes."
+    "comment": "Cet exemple souligne quant à lui le fait d'avoir des panneaux d'informations dans certaines villes seulement peut être plus benéfique que d'en avoir dans toutes les villes. C'est également un des seuls exemples que nous ayons pu trouver où les GPS intelligents ont été très peu performants par rapport aux autres modes."
   }
 ]

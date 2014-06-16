@@ -18,8 +18,8 @@
       <div class="map" ng-controller="Ctrl" ng-init="init(true)">
         <div class="map-container" style="width: {{ parameters.width }}px; height: {{ parameters.height }}px;">
           <div class="town" ng-repeat="town in towns" ng-class="{info: town.info, }" style="left: {{ town.x }}px; top: {{ town.y }}px;" ng-mouseenter="displayTown(town)" ng-mouseleave="displayNone()" ng-click="changeInfo(town)">{{ $index }}<div ng-show="paused && town.garage != 0">{{ town.garage }}</div></div>
-          <div class="route" ng-repeat="route in routes" style="left: {{ towns[route.source].x + 12 }}px; top: {{ towns[route.source].y + 12 }}px; width: {{ route.distance - 11 }}px; transform: rotate({{ getAngle(route) }}rad);" ng-mouseenter="displayRoute(route)" ng-mouseleave="displayNone()">▶</div>
-          <div class="car" ng-repeat="car in cars" ng-hide="car.inGarage" style="left: {{ car.x }}px; top: {{ car.y + 1 }}px; transform: rotate({{ getCarAngle(car.route) }}rad);" ng-mouseenter="displayCar(car)" ng-mouseleave="displayNone()"></div>
+          <div class="route" ng-repeat="route in routes" style="left: {{ towns[route.source].x + 12 }}px; top: {{ towns[route.source].y + 12 }}px; width: {{ route.distance - 11 }}px; transform: rotate({{ getAngle(route) }}rad); -webkit-transform: rotate({{ getAngle(route) }}rad);" ng-mouseenter="displayRoute(route)" ng-mouseleave="displayNone()">▶</div>
+          <div class="car" ng-class="{'car-smart': car.smart}" ng-repeat="car in cars" ng-hide="car.inGarage" style="left: {{ car.x }}px; top: {{ car.y + 1 }}px; transform: rotate({{ getCarAngle(car.route) }}rad); -webkit-transform: rotate({{ getCarAngle(car.route) }}rad);" ng-mouseenter="displayCar(car)" ng-mouseleave="displayNone()"></div>
           <div class="stats" style="right: 0px;"><label>Ratio :</label>{{ (travels / step).toFixed(3) }}</div>
           <div class="stats" style="right: 250px;"><label>Step :</label>{{ step }}</div>
           <div class="stats" style="right: 500px;"><label>Travels completed :</label>{{ travels }}</div>
@@ -34,7 +34,7 @@
             <div class="players" ng-hide="benchmarking">
               <button ng-click="nextStep()" title="Next Step"><span class="rotate">\(\overline{\blacktriangle}\)</span></button> -
               <button ng-click="play()"><span class="rotate">\(\blacktriangle\)</span></button> -
-              <button ng-click="pause()">\(\parallel\)</button> -
+              <button ng-click="pause()"><span class="rotate">\(=\)</span></button> -
               <button ng-click="init(false)">\(\blacksquare\)</button> -
               <button ng-click="init(true)">\(\circlearrowleft\)</button>
             </div>
@@ -54,9 +54,9 @@
               <tr ng-repeat="name in keys(parameters)">
                 <th>{{ name }}</th>
                 <td><button ng-click="changeParam(-1, name, parameters[name])">-</button></td>
-                <td>{{ parameters[name] }}</td>
+                <td>{{ displayParam(name) }}</td>
                 <td><button ng-click="changeParam(1, name, parameters[name])">+</button></td>
-                <td><span ng-show="requireReset(name)">\(\circlearrowleft\)</span><span ng-hide="requireReset(name)">\(\blacksquare\)</span></td>
+                <td><span ng-show="requireReset(name)">\(\circlearrowleft\)</span><span ng-show="requireInit(name)">\(\blacksquare\)</span><span ng-hide="requireInit(name) || requireReset(name)">\(\varnothing\)</span></td>
               </tr>
             </table>
           </li>
@@ -75,15 +75,16 @@
                 <li>Appuyer sur <kbd>F11</kbd> pour passer en plein écran</li>
                 <li>Passer la souris sur n'importe quel élement de la simulation affiche des informations le concernant</li>
                 <li>Cliquer sur une ville permet d'activer/désactiver son mode informatif</li>
-                <li>Le bouton <code>nextStep</code> permet d'avancer d'une unité de temps seulement</li>
-                <li>Les boutons <code>Play</code> et <code>Pause</code> ont le fonctionnement que l'on attend d'eux</li>
-                <li>Le bouton <code>Stop</code> remet la simulation à l'état initial (N.B. : les voitures et leurs trajets sont redistribuées aléatoirement)</li>
-                <li>Le bouton <code>Reset</code> génère un nouveau graphe</li>
-                <li>La section <em>Bechmark</em> permet de lancer un grand nombre d'itérations dans les trois modes décrits ci-dessous, sans l'affichage en temps réel, mais avec les informations importantes en sortie.</li>
+                <li>Le bouton <span class="rotate">\(\overline{\blacktriangle}\)</span> (<em>nextStep</em>) permet d'avancer d'une unité de temps seulement</li>
+                <li>Les boutons <span class="rotate">\(\blacktriangle\)</span> (<em>Play</em>) et <span class="rotate">=</span> (<em>Pause</em>) ont le fonctionnement que l'on attend d'eux</li>
+                <li>Le bouton <span>\(\blacksquare\)</span> (<em>Stop</em>) remet la simulation à l'état initial (N.B. : les voitures et leurs trajets sont redistribuées aléatoirement)</li>
+                <li>Le bouton <span>\(\circlearrowleft\)</span> (<em>Reset</em>) génère un nouveau graphe</li>
+                <li>La section <em>Benchmark</em> permet de lancer un grand nombre d'itérations dans les trois modes décrits ci-dessous, sans l'affichage en temps réel, mais avec les informations importantes en sortie.</li>
               </ul>
               <li>Fonctionnement de la simulation</li>
               <ul>
-                <li>Beaucoup d'éléments ici reposent sur l'alétoire. Afin d'avoir une évaluation précise de l'efficacité, il est donc nécessaire de laisser tourner la simulation un certain temps.</li>
+                <li>Beaucoup d'éléments ici reposent sur l'alétoire. Afin d'avoir une évaluation précise de l'efficacité, il est donc nécessaire de laisser tourner la simulation un certain temps.<br />
+                En effet, lorsqu'une voiture est instanciée ou lorsqu'elle finit sont chemin, elle en choisit un nouveau d'un longueur supérieure à la variable <code>minPathLength</code></li>
                 <li>Les villes affichent deux informations complémentaires : si leur mode informatif est activé, et le nombre de voitures qu'elles hébergent actuellement (uniquement quand la simulation est en pause).</li>
                 <li>L'évalutaion de la vitesse de course d'une voiture sur une route s'effectue linéairement $$\text{progression} = {\text{vitesse_voiture} \over \text{nb_voitures} + 1} + 1$$</li>
               </ul>
@@ -94,22 +95,26 @@
                 <li>Le mode <strong>No info</strong> empêche toutes les voitures de mettre à jour leur trajet en cours de route</li>
                 <li>Le mode <strong>With some info</strong> leur permet de mettre à jour leur trajet seulement dans les villes équipées</li>
                 <li>Le mode <strong>Full info</strong> leur permet de mettre à jour dans chaque ville (\(\simeq\) GPS intelligents)</li>
+                <li>Le mode <strong>Smart GPS</strong> équipe toutes les voitures d'un GPS connaissant les infos trafic. Elles mettent donc à jour leur plus court chemin à chaque ville.
               </ul>
               <li>Les choix de conception</li>
               <ul>
                 <li><strong>Pourquoi <code>HTML / CSS3 / JavaScript</code> ?</strong> Tout simplement parce que ce sont les langages les plus adaptés pour de l'affichage graphique avec une simplicité d'écriture.
                 L'éco-système du <code>JavaScript</code> est tellement plus développé que pour n'importe quel autre langage qu'un bon choix de technologies permet d'arriver à ses fins à une vitesse folle.<br />
                 Cependant, il est à noter que si la performance est recherchée, il est nécessaire de s'orienter vers d'autres choix.</li>
-                <li><strong>Bibliothèques <code>JavaScript</code> utilisées</strong> : Essentiellement <strong>AngularJS</strong>, une bibliothèque permettant de rendre le <code>HTML</code> dynamique, en l'utilisant comme un système de templates dynamique
-                et en gardant la logique de l'application dans un fichier <code>JS</code>. Également <strong>Bootstrap</strong> pour un rendu propre, et <strong>MathJax</strong> pour l'affichage du \(\LaTeX\).</li>
+                <li><strong>Bibliothèques <code>JavaScript</code> utilisées</strong> : Essentiellement <strong>AngularJS</strong>, une bibliothèque permettant de rendre le <code>HTML</code> dynamique, en l'utilisant comme un système de templates dynamique et en gardant la logique de l'application dans un fichier <code>JS</code>.<br />
+                Angular fonctionne sur un système de binding entre les variable affichées et leur valeur. A chaque modification d'une variable, si elle est affichée dans le HTML, sa valeur est automatiquement mise à jour dans le display.<br />
+                Également <strong>Bootstrap</strong> pour un rendu propre, et <strong>MathJax</strong> pour l'affichage du \(\LaTeX\).</li>
               </ul>
               <li>Structuration du programme</li>
               <ul>
                 <li>Un fichier <code>HTML</code> permettant l'affichage de l'application</li>
                 <li>Un fichier <code>CoffeeScript</code> préprocessé en <code>JavaScript</code> contenant la classe d'agents <code>Voiture</code> et la logique de l'application.<br />
-                Tous les agents voiture sont stockés dans un tableau, et chacun itère sur sa position suivante à tour de rôle.<br />
+                Tous les agents voiture sont stockés dans un tableau, et chacun itère sur sa position suivante à tour de rôle.
+                La seule vraie problématique algorithmique réside dans la fonction d'évaluation de plus court chemin de la voiture.
+                Celle-ci consiste en un <em>Dijkstra</em> où la distance évaluée dépend de la ville où est la voiture et de si elle possède un GPS ou non.<br />
                 Nous n'avons pas considéré les villes comme des agents, car leur rôle est minime, elle ne servent qu'à changer la fonction de plus court chemin des voitures, ces informations-là sont données directement par l'environnement.</li>
-                <li>Un fichier JavaScript de sauvegardes</li>
+                <li>Un fichier <code>JavaScript</code> de sauvegardes.</li>
                 <li>Un fichier <code>CSS</code> contenant les informations de style.</li>
               </ul>
               <li>Difficultés rencontrées</li>
@@ -144,7 +149,10 @@
                   Cependant, en ayant lancé un nombre de simulations élevés, il est intéressant de noter que certains paramètres sont importants dans cette configuration.<br />
                   En effet, plus le nombre de routes partant de chaque ville est important, plus les panneaux d'informations ont un effet bénéfique.<br />
                   Il en est de même du nombre de voitures, même si quelques situations arrivent en contre-exemples car provoquant un engorgement encore plus gros.<br />
+                  Cependant, quels que soient les paramètres sur lesquels nous jouons, les GPS intelligents arrivent toujours à nous donner un meilleur résultat que les autres modes (Les quelques fois où ce n'est pas le cas sont attribuables au random et au trop faible nombre d'itérations).<br />
+                  N.B. : Il est à noter que dans chacun des exemples, le paramètre <code>smart_ratio</code> est à 100%.
                 </p>
+                <hr />
               </li>
             </ul>
           </li>
@@ -153,7 +161,7 @@
             <div ng-show="showBenchmark">
               <hr/>
               <p>Attention, un nombre d'itérations trop élevé risque de faire planter votre navigateur à cause de sa volonté à vouloir arrêter des scripts qui durent trop longtemps.<br />
-              C'est la raison pour laquelle dans les conclusions, les tableaux de résultats sont déjà présents, ceci vous évitant de prendre un tel risque, les calculs ayant été faits sur un nombre d'itérations élévé (30 000).</p>
+              C'est la raison pour laquelle dans les conclusions, les tableaux de résultats sont déjà présents, ceci vous évitant de prendre un tel risque, les calculs ayant été faits sur un nombre d'itérations élévé (30 000) ce qui diminue l'impact du random.</p>
               <form class="form-horizontal" role="form">
                 <div class="form-group">
                   <label class="col-xs-2" for="inputBenchmarkSteps">Number of steps per mode</label>

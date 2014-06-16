@@ -45,8 +45,9 @@
   };
 
   Car = (function() {
-    function Car(speed, scope) {
+    function Car(speed, smart, scope) {
       this.speed = speed;
+      this.smart = smart;
       this.scope = scope;
       this.dist_on_route = 0;
       this.route = -1;
@@ -155,7 +156,7 @@
         for (_j = 0, _len = routes.length; _j < _len; _j++) {
           route = routes[_j];
           route = this.scope.routes[route];
-          alt = dist[u] + (Math.floor(route.distance * (u === this.town && this.scope.towns[u].info ? route.using + 1 : 1)) + 1);
+          alt = dist[u] + (Math.floor(route.distance * ((u === this.town && this.scope.towns[u].info) || this.smart ? route.using + 1 : 1)) + 1);
           v = route.dest;
           if (alt < dist[v]) {
             dist[v] = alt;
@@ -338,7 +339,7 @@
           var _i, _ref, _results;
           _results = [];
           for (i = _i = 0, _ref = $scope.routes.length * $scope.parameters.car_ratio; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push(new Car(random($scope.parameters.min_speed, $scope.parameters.max_speed), $scope));
+            _results.push(new Car(random($scope.parameters.min_speed, $scope.parameters.max_speed), $scope.mode === 'smart_gps' && Math.random() < $scope.parameters.smart_ratio, $scope));
           }
           return _results;
         })();
@@ -353,7 +354,8 @@
         $scope.modes || ($scope.modes = {
           no_info: "No info",
           with_info: "With some info",
-          full_info: "Full info"
+          full_info: "Full info",
+          smart_gps: "Smart GPS"
         });
         $scope.parameters || ($scope.parameters = {
           width: 1400,
@@ -366,8 +368,9 @@
           farest_town: 10,
           min_speed: 30,
           max_speed: 60,
-          sim_speed: 0,
+          sim_slow: 1,
           car_ratio: 1,
+          smart_ratio: 0.5,
           min_path_length: 2,
           benchmark_steps: 10000
         });
@@ -473,38 +476,54 @@
       $scope.displayNone = function() {
         return $scope.displayObj = null;
       };
+      $scope.displayParam = function(param) {
+        return parseFloat($scope.parameters[param].toFixed(2));
+      };
       $scope.changeInfo = function(town) {
         return town.info = !town.info;
       };
       $scope.changeMode = function(val) {
-        var i, j, town, _i, _len, _ref, _results;
+        var car, i, j, smart, town, _i, _j, _len, _len1, _ref, _ref1, _results;
         $scope.mode = val != null ? val : $scope.mode != null ? $scope.mode : 'no_info';
+        smart = $scope.mode === 'smart_gps';
         j = 0;
         _ref = $scope.towns;
-        _results = [];
         for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
           town = _ref[i];
-          _results.push(town.info = (function() {
+          town.info = (function() {
             switch ($scope.mode) {
-              case 'no_info':
-                return false;
+              case 'with_info':
+                return i * $scope.parameters.info_chance > j && (j += 1);
               case 'full_info':
                 return true;
               default:
-                return i * $scope.parameters.info_chance > j && (j += 1);
+                return false;
             }
-          })());
+          })();
+        }
+        _ref1 = $scope.cars;
+        _results = [];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          car = _ref1[_j];
+          car.smart = smart && (Math.random() < $scope.parameters.smart_ratio);
+          _results.push(void 0);
         }
         return _results;
       };
       $scope.requireReset = function(name) {
         return ['nb_towns', 'min_distance', 'min_routes', 'max_routes', 'farest_town'].indexOf(name) !== -1;
       };
+      $scope.requireInit = function(name) {
+        return ['min_speed', 'max_speed', 'car_ratio', 'smart_ratio', 'min_path_length'].indexOf(name) !== -1;
+      };
       $scope.changeParam = function(sign, name, val) {
-        var change;
+        var change, reset;
         change = (val < 0.1 ? 0.01 : val < 0.2 ? 0.05 : val < 0.8 ? 0.1 : val < 0.9 ? 0.05 : val < 1 ? 0.01 : val < 2 ? 0.5 : val < 5 ? 1 : val < 20 ? 3 : val < 100 ? 10 : val < 200 ? 50 : val < 1000 ? 100 : val < 2000 ? 200 : void 0);
         $scope.parameters[name] += sign * change;
-        return $scope.init($scope.requireReset(name));
+        reset = $scope.requireReset(name);
+        if (reset || $scope.requireInit(name)) {
+          return $scope.init;
+        }
       };
       $scope.getAngle = function(route) {
         var dest, source, _ref;
@@ -531,7 +550,7 @@
           $scope.nextStep();
           return $timeout((function() {
             return $scope.loop();
-          }), $scope.speed);
+          }), $scope.parameters.sim_slow);
         }
       };
       $scope.play = function() {

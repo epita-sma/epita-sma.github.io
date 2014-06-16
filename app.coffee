@@ -26,7 +26,7 @@ min = (array) ->
   [m, ind]
 
 class Car
-  constructor: (@speed, @scope) ->
+  constructor: (@speed, @smart, @scope) ->
     @dist_on_route = 0
     @route = -1
     @inGarage = true
@@ -80,7 +80,7 @@ class Car
       routes = @scope.towns[u].routes
       for route in routes
         route = @scope.routes[route]
-        alt = dist[u] + (Math.floor(route.distance * (if u == @town && @scope.towns[u].info then (route.using + 1) else 1)) + 1) # Calculus of the delay of a used road (Should consider the last +1 of the formula)
+        alt = dist[u] + (Math.floor(route.distance * (if ((u == @town && @scope.towns[u].info) || @smart) then (route.using + 1) else 1)) + 1) # Calculus of the delay of a used road (Should consider the last +1 of the formula)
         v = route.dest
         if alt < dist[v]
           dist[v] = alt
@@ -172,7 +172,7 @@ app.controller 'Ctrl', ['$scope', '$timeout', ($scope, $timeout) ->
       undefined
 
   initCars = ->
-    $scope.cars = (new Car(random($scope.parameters.min_speed, $scope.parameters.max_speed), $scope) for i in [0...($scope.routes.length * $scope.parameters.car_ratio)])
+    $scope.cars = (new Car(random($scope.parameters.min_speed, $scope.parameters.max_speed), ($scope.mode == 'smart_gps' && Math.random() < $scope.parameters.smart_ratio), $scope) for i in [0...($scope.routes.length * $scope.parameters.car_ratio)])
 
   initSim = ->
     $scope.paused = true
@@ -185,6 +185,7 @@ app.controller 'Ctrl', ['$scope', '$timeout', ($scope, $timeout) ->
       no_info: "No info"
       with_info: "With some info"
       full_info: "Full info"
+      smart_gps: "Smart GPS"
     }
     $scope.parameters ||= {
       width: 1400
@@ -197,8 +198,9 @@ app.controller 'Ctrl', ['$scope', '$timeout', ($scope, $timeout) ->
       farest_town: 10
       min_speed: 30
       max_speed: 60
-      sim_speed: 0
+      sim_slow: 1
       car_ratio: 1
+      smart_ratio: 0.5
       min_path_length: 2
       benchmark_steps: 10000
     }
@@ -273,20 +275,30 @@ app.controller 'Ctrl', ['$scope', '$timeout', ($scope, $timeout) ->
   $scope.displayNone = ->
     $scope.displayObj = null
 
+  $scope.displayParam = (param) ->
+    parseFloat($scope.parameters[param].toFixed(2))
+
   $scope.changeInfo = (town) ->
     town.info = !town.info
 
   $scope.changeMode = (val) ->
     $scope.mode = if val? then val else if $scope.mode? then $scope.mode else 'no_info'
+    smart = $scope.mode == 'smart_gps'
     j = 0
     for town, i in $scope.towns
       town.info = switch $scope.mode
-        when 'no_info' then false
+        when 'with_info' then (i * $scope.parameters.info_chance > j && j += 1)
         when 'full_info' then true
-        else (i * $scope.parameters.info_chance > j && j += 1)
+        else false
+    for car in $scope.cars
+      car.smart = smart && (Math.random() < $scope.parameters.smart_ratio)
+      undefined
 
   $scope.requireReset = (name) ->
-    (['nb_towns', 'min_distance', 'min_routes', 'max_routes', 'farest_town'].indexOf(name) != -1)
+    ['nb_towns', 'min_distance', 'min_routes', 'max_routes', 'farest_town'].indexOf(name) != -1
+
+  $scope.requireInit = (name) ->
+    ['min_speed', 'max_speed', 'car_ratio', 'smart_ratio', 'min_path_length'].indexOf(name) != -1
 
   $scope.changeParam = (sign, name, val) ->
     change = (
@@ -303,7 +315,8 @@ app.controller 'Ctrl', ['$scope', '$timeout', ($scope, $timeout) ->
       else if val < 1000 then 100
       else if val < 2000 then 200)
     $scope.parameters[name] += sign * change
-    $scope.init $scope.requireReset(name)
+    reset = $scope.requireReset(name)
+    $scope.init if reset || $scope.requireInit(name)
 
   $scope.getAngle = (route) ->
     [source, dest] = [$scope.towns[route.source], $scope.towns[route.dest]]
@@ -321,7 +334,7 @@ app.controller 'Ctrl', ['$scope', '$timeout', ($scope, $timeout) ->
   $scope.loop = ->
     if !$scope.paused
       $scope.nextStep()
-      $timeout (-> $scope.loop()), $scope.speed
+      $timeout (-> $scope.loop()), $scope.parameters.sim_slow
 
   $scope.play = ->
     $scope.paused = false
