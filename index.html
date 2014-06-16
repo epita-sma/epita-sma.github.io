@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <title>
+      Trafic
+    </title>
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="app.css" />
+    <meta charset="UTF-8" />
+    <script type="text/javascript" src="./bower_components/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="./bower_components/angular/angular.js"></script>
+    <script type="text/javascript" src="./bower_components/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="save.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="map" ng-controller="Ctrl" ng-init="init(true)">
+        <div class="map-container" style="width: {{ parameters.width }}px; height: {{ parameters.height }}px;">
+          <div class="town" ng-repeat="town in towns" ng-class="{info: town.info, }" style="left: {{ town.x }}px; top: {{ town.y }}px;" ng-mouseenter="displayTown(town)" ng-mouseleave="displayNone()" ng-click="changeInfo(town)">{{ $index }}<div ng-show="paused && town.garage != 0">{{ town.garage }}</div></div>
+          <div class="route" ng-repeat="route in routes" style="left: {{ towns[route.source].x + 12 }}px; top: {{ towns[route.source].y + 12 }}px; width: {{ route.distance - 11 }}px; transform: rotate({{ getAngle(route) }}rad);" ng-mouseenter="displayRoute(route)" ng-mouseleave="displayNone()">▶</div>
+          <div class="car" ng-repeat="car in cars" ng-hide="car.inGarage" style="left: {{ car.x }}px; top: {{ car.y + 1 }}px; transform: rotate({{ getCarAngle(car.route) }}rad);" ng-mouseenter="displayCar(car)" ng-mouseleave="displayNone()"></div>
+          <div class="stats" style="right: 0px;"><label>Ratio :</label>{{ (travels / step).toFixed(3) }}</div>
+          <div class="stats" style="right: 250px;"><label>Step :</label>{{ step }}</div>
+          <div class="stats" style="right: 500px;"><label>Travels completed :</label>{{ travels }}</div>
+          <div class="modes">
+            <p>
+              <a ng-repeat="key in keys(modes)" ng-class="{chosen: mode == key}" ng-click="changeMode(key)">{{ modes[key] }}</a>
+            </p>
+          </div>
+        </div>
+        <ul>
+          <li>
+            <div class="players" ng-hide="benchmarking">
+              <button ng-click="nextStep()" title="Next Step"><span class="rotate">\(\overline{\blacktriangle}\)</span></button> -
+              <button ng-click="play()"><span class="rotate">\(\blacktriangle\)</span></button> -
+              <button ng-click="pause()">\(\parallel\)</button> -
+              <button ng-click="init(false)">\(\blacksquare\)</button> -
+              <button ng-click="init(true)">\(\circlearrowleft\)</button>
+            </div>
+          </li>
+          <ul class="errors" ng-show="errors.length != 0">
+            <li ng-repeat="error in errors track by $index">{{ error }}</li>
+          </ul>
+          <li>
+            <hr />
+            <a ng-click="showParams = !showParams">Parameters</a>
+            <table class="parameters table table-striped table-condensed" ng-show="showParams">
+              <tr>
+                <th>Name</th>
+                <th colspan="3">Value</th>
+                <th>Change will</th>
+              </tr>
+              <tr ng-repeat="name in keys(parameters)">
+                <th>{{ name }}</th>
+                <td><button ng-click="changeParam(-1, name, parameters[name])">-</button></td>
+                <td>{{ parameters[name] }}</td>
+                <td><button ng-click="changeParam(1, name, parameters[name])">+</button></td>
+                <td><span ng-show="requireReset(name)">\(\circlearrowleft\)</span><span ng-hide="requireReset(name)">\(\blacksquare\)</span></td>
+              </tr>
+            </table>
+          </li>
+          <li class="help">
+            <a ng-click="showHelp = !showHelp">Help</a>
+            <ul ng-show="showHelp" style="width: {{ parameters.width - 100 }}px;">
+              <hr />
+              <li>Auteurs</li>
+              <ul>
+                <li><em>dumont_h</em> - DUMONT Matthieu</li>
+                <li><em>gonzal_j</em> - GONZALEZ Julien</li>
+                <li><em>delann_a</em> - DELANNOY Antoine</li>
+              </ul>
+              <li>Comment utiliser la simulation</li>
+              <ul>
+                <li>Appuyer sur <kbd>F11</kbd> pour passer en plein écran</li>
+                <li>Passer la souris sur n'importe quel élement de la simulation affiche des informations le concernant</li>
+                <li>Cliquer sur une ville permet d'activer/désactiver son mode informatif</li>
+                <li>Le bouton <code>nextStep</code> permet d'avancer d'une unité de temps seulement</li>
+                <li>Les boutons <code>Play</code> et <code>Pause</code> ont le fonctionnement que l'on attend d'eux</li>
+                <li>Le bouton <code>Stop</code> remet la simulation à l'état initial (N.B. : les voitures et leurs trajets sont redistribuées aléatoirement)</li>
+                <li>Le bouton <code>Reset</code> génère un nouveau graphe</li>
+                <li>La section <em>Bechmark</em> permet de lancer un grand nombre d'itérations dans les trois modes décrits ci-dessous, sans l'affichage en temps réel, mais avec les informations importantes en sortie.</li>
+              </ul>
+              <li>Fonctionnement de la simulation</li>
+              <ul>
+                <li>Beaucoup d'éléments ici reposent sur l'alétoire. Afin d'avoir une évaluation précise de l'efficacité, il est donc nécessaire de laisser tourner la simulation un certain temps.</li>
+                <li>Les villes affichent deux informations complémentaires : si leur mode informatif est activé, et le nombre de voitures qu'elles hébergent actuellement (uniquement quand la simulation est en pause).</li>
+                <li>L'évalutaion de la vitesse de course d'une voiture sur une route s'effectue linéairement $$\text{progression} = {\text{vitesse_voiture} \over \text{nb_voitures} + 1} + 1$$</li>
+              </ul>
+              <li>Le système d'informations</li>
+              <ul>
+                <li>Toutes les voitures sont équipées d'un GPS et calculent le trajet de <strong>distance minimale</strong> au moment de leur départ.</li>
+                <li>À chaque fois qu'elles visitent une ville avec un panneau d'information, le plus court chemin est recalculé, en utilisant cette fois-ci les informations trafic de toutes les routes partant de cette ville.</li>
+                <li>Le mode <strong>No info</strong> empêche toutes les voitures de mettre à jour leur trajet en cours de route</li>
+                <li>Le mode <strong>With some info</strong> leur permet de mettre à jour leur trajet seulement dans les villes équipées</li>
+                <li>Le mode <strong>Full info</strong> leur permet de mettre à jour dans chaque ville (\(\simeq\) GPS intelligents)</li>
+              </ul>
+              <li>Les choix de conception</li>
+              <ul>
+                <li><strong>Pourquoi <code>HTML / CSS3 / JavaScript</code> ?</strong> Tout simplement parce que ce sont les langages les plus adaptés pour de l'affichage graphique avec une simplicité d'écriture.
+                L'éco-système du <code>JavaScript</code> est tellement plus développé que pour n'importe quel autre langage qu'un bon choix de technologies permet d'arriver à ses fins à une vitesse folle.<br />
+                Cependant, il est à noter que si la performance est recherchée, il est nécessaire de s'orienter vers d'autres choix.</li>
+                <li><strong>Bibliothèques <code>JavaScript</code> utilisées</strong> : Essentiellement <strong>AngularJS</strong>, une bibliothèque permettant de rendre le <code>HTML</code> dynamique, en l'utilisant comme un système de templates dynamique
+                et en gardant la logique de l'application dans un fichier <code>JS</code>. Également <strong>Bootstrap</strong> pour un rendu propre, et <strong>MathJax</strong> pour l'affichage du \(\LaTeX\).</li>
+              </ul>
+              <li>Structuration du programme</li>
+              <ul>
+                <li>Un fichier <code>HTML</code> permettant l'affichage de l'application</li>
+                <li>Un fichier <code>CoffeeScript</code> préprocessé en <code>JavaScript</code> contenant la classe d'agents <code>Voiture</code> et la logique de l'application.<br />
+                Tous les agents voiture sont stockés dans un tableau, et chacun itère sur sa position suivante à tour de rôle.<br />
+                Nous n'avons pas considéré les villes comme des agents, car leur rôle est minime, elle ne servent qu'à changer la fonction de plus court chemin des voitures, ces informations-là sont données directement par l'environnement.</li>
+                <li>Un fichier JavaScript de sauvegardes</li>
+                <li>Un fichier <code>CSS</code> contenant les informations de style.</li>
+              </ul>
+              <li>Difficultés rencontrées</li>
+              <ul>
+                <li>Aucune, les différentes simulations que nous avions faites en SMA et pour notre présentation des algorithmes de colonie de fourmis nous ayant déjà bien entraînés.</li>
+              </ul>
+            </ul>
+          </li>
+          <li>
+            <a ng-click="showConclusions = !showConclusions">Conclusions</a>
+            <ul ng-show="showConclusions" style="width: {{ parameters.width - 100 }}px;">
+              <li ng-repeat="save in saves">
+                <table class="table table-striped table-condensed">
+                  <tr>
+                    <th rowspan="{{ keys(save.benchmarks).length + 1 }}">Sim {{ $index + 1 }}<br /><a ng-click="load(save)">Load</a></th>
+                    <th>Mode</th>
+                    <th>Performance</th>
+                    <th>Comparison</th>
+                  </tr>
+                  <tr ng-repeat="key in keys(save.benchmarks)">
+                    <th>{{ key }}</th>
+                    <td>{{ save.benchmarks[key][0] }}</td>
+                    <td>{{ save.benchmarks[key][1] }}%</td>
+                  </tr>
+                </table>
+                <p>{{ save.comment }}</p>
+                <hr />
+              </li>
+              <li>
+                <p>
+                  Avec tous ces exemples, nous avons pu voir que les panneaux d'informations ne sont pas nécessairement parfaits au niveau de l'amélioration du trafic.<br />
+                  Cependant, en ayant lancé un nombre de simulations élevés, il est intéressant de noter que certains paramètres sont importants dans cette configuration.<br />
+                  En effet, plus le nombre de routes partant de chaque ville est important, plus les panneaux d'informations ont un effet bénéfique.<br />
+                  Il en est de même du nombre de voitures, même si quelques situations arrivent en contre-exemples car provoquant un engorgement encore plus gros.<br />
+                </p>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a ng-click="initBenchmark()">Benchmark</a>
+            <div ng-show="showBenchmark">
+              <hr/>
+              <p>Attention, un nombre d'itérations trop élevé risque de faire planter votre navigateur à cause de sa volonté à vouloir arrêter des scripts qui durent trop longtemps.<br />
+              C'est la raison pour laquelle dans les conclusions, les tableaux de résultats sont déjà présents, ceci vous évitant de prendre un tel risque, les calculs ayant été faits sur un nombre d'itérations élévé (30 000).</p>
+              <form class="form-horizontal" role="form">
+                <div class="form-group">
+                  <label class="col-xs-2" for="inputBenchmarkSteps">Number of steps per mode</label>
+                  <div class="col-xs-2">
+                    <input id="inputBenchmarkSteps" class="form-control" type="text" ng-model="parameters.benchmark_steps" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="col-xs-offset-2 col-xs-1">
+                    <a class="btn btn-primary" ng-click="benchmark()">Launch</a>
+                  </div>
+                </div>
+              <table class="table table-striped table-condensed" ng-show="benchmarks">
+                <tr>
+                  <th>Mode</th>
+                  <th>Performance</th>
+                  <th>Comparison</th>
+                </tr>
+                <tr ng-repeat="key in keys(benchmarks)">
+                  <th>{{ key }}</th>
+                  <td>{{ benchmarks[key][0] }}</td>
+                  <td>{{ benchmarks[key][1] }}%</td>
+                </tr>
+              </table>
+              <a ng-show="false" ng-click="save()">Save</a>
+            </div>
+          </li>
+        </ul>
+        <table class="info table" ng-show="displayObj">
+          <tr ng-repeat="(key, value) in displayObj">
+            <th>{{ key }}</th>
+            <td>{{ value }}</td>
+          </tr>
+        </table>
+        <code ng-show="dump"><pre>{{ dump | json }}</pre></code>
+      </div>
+    </div>
+  </body>
+</html>
