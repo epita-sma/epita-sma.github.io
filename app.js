@@ -522,7 +522,7 @@
         $scope.parameters[name] += sign * change;
         reset = $scope.requireReset(name);
         if (reset || $scope.requireInit(name)) {
-          return $scope.init;
+          return $scope.init(reset);
         }
       };
       $scope.getAngle = function(route) {

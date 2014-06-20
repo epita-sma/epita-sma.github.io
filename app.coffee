@@ -316,7 +316,7 @@ app.controller 'Ctrl', ['$scope', '$timeout', ($scope, $timeout) ->
       else if val < 2000 then 200)
     $scope.parameters[name] += sign * change
     reset = $scope.requireReset(name)
-    $scope.init if reset || $scope.requireInit(name)
+    $scope.init(reset) if (reset || $scope.requireInit(name))
 
   $scope.getAngle = (route) ->
     [source, dest] = [$scope.towns[route.source], $scope.towns[route.dest]]
